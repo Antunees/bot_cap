@@ -1,0 +1,22 @@
+{
+	"name": "bot_cap",
+	"version": "1.0.0",
+	"description": "Primeira versao do bot_cap",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Antunees/bot_cap.git"
+	},
+	"author": "Cauê Antunes",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Antunees/bot_cap/issues"
+	},
+	"homepage": "https://github.com/Antunees/bot_cap#readme",
+	"dependencies": {
+		"tmi.js": "^1.5.0"
+	}
+}
