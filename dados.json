@@ -1,0 +1,26 @@
+{
+	"twitch": {
+		"canal": "CoringaStark", // Deve ser informado o nome do canal
+		"options": {
+			"options": {
+				"debug": true
+			},
+			"connection": {
+				"cluster": "aws",
+				"reconnect": true
+			},
+			"identity": {
+				"username": "bot_cap",
+				"password": "" // Deve ser informado a senha do bot obtido na Twitch
+			},
+			"channels": ["CoringaStark"] // Deve ser informado o nome do canal
+		},
+		"resposta": {
+			"separador": " ─────────────────────────────────── "
+		}
+	},
+	"riot": {
+		"elosConsultados": [],
+		"tokenRiot": "" // Deve ser informado o token obtido da Riot
+	}
+}

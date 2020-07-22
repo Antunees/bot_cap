@@ -1,29 +1,10 @@
 var tmi = require('tmi.js');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
-var tokenRiot = ""; //Deve ser inserido o token da Riot
-var canal = "CoringaStark";
-var elosConsultados = {};
-var senhaTwitch = ""; // Deve ser inserida a senha da Twitch para o bot
+var dadosUsuario = require('./dados.json');
 
-var options = {
-	options: {
-		debug: true
-	},
-	connection: {
-		cluster: "aws",
-		reconnect: true
-	},
-	identity: {
-		username: "bot_cap",
-		password: senhaTwitch
-	},
-	channels: [canal]
-};
-
-var client = new tmi.client(options);
+var client = new tmi.client(dadosUsuario.twitch.options);
 client.connect();
-
 
 client.on("chat", function(channel, user, message, self)
 {
@@ -41,7 +22,7 @@ client.on("chat", function(channel, user, message, self)
 
 			p1.then(
 				function(val) {
-					client.action(canal, val);
+					client.action(dadosUsuario.twitch.canal, val);
 				}
 			);
 
@@ -50,14 +31,14 @@ client.on("chat", function(channel, user, message, self)
 
 		case '!salve':
 		{
-			client.action(canal, user['display-name'] + ", está salvo!!");
+			client.action(dadosUsuario.twitch.canal, user['display-name'] + ", está salvo!!");
 
 			break;
 		}
 
 		case '!youtube':
 		{
-			client.action(canal, "https://www.youtube.com/channel/UCeHPVlwUFR53hNJ7V1viedg");
+			client.action(dadosUsuario.twitch.canal, "https://www.youtube.com/channel/UCeHPVlwUFR53hNJ7V1viedg");
 
 			break;
 		}
@@ -65,7 +46,7 @@ client.on("chat", function(channel, user, message, self)
 		case "!cap":
 		case "!bot_cap":
 		{
-			client.action(canal, "Olá Olá! Sou o Bot CAP :)");
+			client.action(dadosUsuario.twitch.canal, "Olá Olá! Sou o Bot CAP :)");
 
 			break;
 		}
@@ -75,7 +56,7 @@ client.on("chat", function(channel, user, message, self)
 		case "!ajuda":
 		case "!help":
 		{
-			client.action(canal, "!salve, !elo, !elo {Nome de usuario}, !youtube, !dc, !discord, !cap, !bot_cap");
+			client.action(dadosUsuario.twitch.canal, "!salve, !elo, !elo {Nome de usuario}, !youtube, !dc, !discord, !cap, !bot_cap");
 
 			break;
 		}
@@ -83,7 +64,7 @@ client.on("chat", function(channel, user, message, self)
 		case '!dc':
 		case '!discord':
 		{
-			client.action(canal, "Cauê Antunes#9834");
+			client.action(dadosUsuario.twitch.canal, "Cauê Antunes#9834");
 
 			break;
 		}
@@ -101,7 +82,7 @@ client.on("chat", function(channel, user, message, self)
 
 				p1.then(
 					function(val) {
-						client.action(canal, val);
+						client.action(dadosUsuario.twitch.canal, val);
 					}
 				);
 			}
@@ -109,15 +90,15 @@ client.on("chat", function(channel, user, message, self)
 	}
 });
 
-function verificaHistoricoElo(nomeUsuario, resolve)
+function verificaHistoricoElo(nomeUsuario)
 {
-	if(typeof elosConsultados[nomeUsuario] === 'undefined')
+	if(typeof dadosUsuario.riot.elosConsultados[nomeUsuario] === 'undefined')
 	{
 		return false;
 	}
 
 	var date = new Date();
-	var dateConsultado = elosConsultados[nomeUsuario]['horaPesquisa'];
+	var dateConsultado = dadosUsuario.riot.elosConsultados[nomeUsuario]['horaPesquisa'];
 	var minutes = (date.getTime() - dateConsultado.getTime()) / (60 * 1000);
 
 	if (minutes > 4 || (minutes < 0 && minutes > -1395)) {
@@ -125,7 +106,7 @@ function verificaHistoricoElo(nomeUsuario, resolve)
 	}
 	else
 	{
-		return (elosConsultados[nomeUsuario]['nome'] + " -> " + elosConsultados[nomeUsuario]['tier'] + " " + elosConsultados[nomeUsuario]['rank']);
+		return (dadosUsuario.riot.elosConsultados[nomeUsuario]['nome'] + " -> " + dadosUsuario.riot.elosConsultados[nomeUsuario]['tier'] + " " + dadosUsuario.riot.elosConsultados[nomeUsuario]['rank']);
 	}
 }
 
@@ -144,7 +125,7 @@ function buscaElo(nomeUsuario, resolve)
 
 	var xhttpBuscaUsuario = new XMLHttpRequest();
 	xhttpBuscaUsuario.open("GET", url, true);
-	xhttpBuscaUsuario.setRequestHeader("X-Riot-Token", tokenRiot);
+	xhttpBuscaUsuario.setRequestHeader("X-Riot-Token", dadosUsuario.riot.tokenRiot);
 
 	xhttpBuscaUsuario.onreadystatechange = function()
 	{	//Função a ser chamada quando a requisição retornar do servidor
@@ -159,7 +140,7 @@ function buscaElo(nomeUsuario, resolve)
 
 			var xhttpBuscaDadosRanked = new XMLHttpRequest();
 			xhttpBuscaDadosRanked.open("GET", url, true);
-			xhttpBuscaDadosRanked.setRequestHeader("X-Riot-Token", tokenRiot);
+			xhttpBuscaDadosRanked.setRequestHeader("X-Riot-Token", dadosUsuario.riot.tokenRiot);
 
 			xhttpBuscaDadosRanked.onreadystatechange = function()
 			{	//Função a ser chamada quando a requisição retornar do servidor
@@ -172,14 +153,19 @@ function buscaElo(nomeUsuario, resolve)
 					{
 						if(dados.queueType == "RANKED_SOLO_5x5")
 						{
+							console.log(dados);
 							dadosEloConsultado = {
 								'nome': dados.summonerName,
 								'tier': dados.tier,
 								'rank': dados.rank,
 								'horaPesquisa': new Date()
 							};
-							elosConsultados[usuario] = dadosEloConsultado;
-							resolve(dados.summonerName + " -> " + dados.tier + " " + dados.rank);
+
+							dadosUsuario.riot.elosConsultados[usuario] = dadosEloConsultado;
+
+							var texto = dados.summonerName + " . . . . . . . . . . " + dados.tier + " " + dados.rank + " (" + dados.leaguePoints + "LP)";
+							texto = dadosUsuario.twitch.resposta.separador + texto + dadosUsuario.twitch.resposta.separador;
+							resolve(texto);
 						}
 					});
 
