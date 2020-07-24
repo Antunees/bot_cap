@@ -14,17 +14,31 @@ client.on("chat", function(channel, user, message, self)
 	{
 		case '!elo':
 		{
-			var p1 = new Promise(
-				function(resolve, reject) {
-					buscaElo('Coringaa Stark', resolve);
-				}
-			);
+			var mensagemRetorno = "";
+			var promises = [];
 
-			p1.then(
-				function(val) {
-					client.action(dadosUsuario.twitch.canal, val);
-				}
-			);
+			dadosUsuario.riot.contasStreamer.forEach(function(nomeUsuarioArray, index)
+			{
+				var promise = new Promise(
+					function(resolve, reject) {
+						buscaElo(nomeUsuarioArray, resolve);
+					}
+				);
+
+				promise.then(
+					function(val)
+					{
+						promises.push(true);
+						mensagemRetorno = mensagemRetorno + dadosUsuario.twitch.resposta.separador + val
+
+						if(promises.length === dadosUsuario.riot.contasStreamer.length)
+						{
+							mensagemRetorno = mensagemRetorno + dadosUsuario.twitch.resposta.separador;
+							client.action(dadosUsuario.twitch.canal, mensagemRetorno);
+						}
+					}
+				);
+			});
 
 			break;
 		}
@@ -73,16 +87,18 @@ client.on("chat", function(channel, user, message, self)
 		{
 			if(message.startsWith("!elo "))
 			{
-				var p1 = new Promise(
+				var promise = new Promise(
 					function(resolve, reject) {
 						var nomeUsuario = message.substring(5);
 						buscaElo(nomeUsuario, resolve);
 					}
 				);
 
-				p1.then(
+				promise.then(
 					function(val) {
-						client.action(dadosUsuario.twitch.canal, val);
+
+						texto = dadosUsuario.twitch.resposta.separador + val + dadosUsuario.twitch.resposta.separador;
+						client.action(dadosUsuario.twitch.canal, texto);
 					}
 				);
 			}
@@ -153,7 +169,6 @@ function buscaElo(nomeUsuario, resolve)
 					{
 						if(dados.queueType == "RANKED_SOLO_5x5")
 						{
-							console.log(dados);
 							dadosEloConsultado = {
 								'nome': dados.summonerName,
 								'tier': dados.tier,
@@ -163,9 +178,7 @@ function buscaElo(nomeUsuario, resolve)
 
 							dadosUsuario.riot.elosConsultados[usuario] = dadosEloConsultado;
 
-							var texto = dados.summonerName + " . . . . . . . . . . " + dados.tier + " " + dados.rank + " (" + dados.leaguePoints + "LP)";
-							texto = dadosUsuario.twitch.resposta.separador + texto + dadosUsuario.twitch.resposta.separador;
-							resolve(texto);
+							resolve(dados.summonerName + " . . . . . . . . . . " + dados.tier + " " + dados.rank + " (" + dados.leaguePoints + "LP)");
 						}
 					});
 
