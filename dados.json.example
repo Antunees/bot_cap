@@ -1,0 +1,27 @@
+{
+	"twitch": {
+		"canal": "CoringaStark",
+		"options": {
+			"options": {
+				"debug": true
+			},
+			"connection": {
+				"cluster": "aws",
+				"reconnect": true
+			},
+			"identity": {
+				"username": "bot_cap",
+				"password": ""
+			},
+			"channels": ["CoringaStark"]
+		},
+		"resposta": {
+			"separador": " ─────────────────────────────────── "
+		}
+	},
+	"riot": {
+		"elosConsultados": [],
+		"tokenRiot": "",
+		"contasStreamer": ["Coringaa Stark"]
+	}
+}
